@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProjectPartA_A1
+namespace ProjectPartA_A2
 {
     class Program
     {
@@ -16,7 +16,6 @@ namespace ProjectPartA_A1
 
         static Article[] articles = new Article[_maxNrArticles];
         static int nrArticles;
-
         static void Main(string[] args)
         {
             ShoppingMenu();
@@ -44,7 +43,7 @@ namespace ProjectPartA_A1
                             ReadArticles();
                             break;
                         case 2:
-
+                            RemoveArticle(articles);
                             break;
                         case 3:
                             PrintReceiptPrice(articles);
@@ -56,7 +55,7 @@ namespace ProjectPartA_A1
 
                         case 5:
                             Console.WriteLine("Thank you for using the shopping list!");
-                            Environment.Exit(0);
+                            menuRunning = false;
                             break;
                         default:
                             Console.WriteLine("Please choose between options 1-5.");
@@ -64,6 +63,7 @@ namespace ProjectPartA_A1
                     }
                 }
             }
+            Environment.Exit(0);
 
         }
 
@@ -127,6 +127,8 @@ namespace ProjectPartA_A1
         // method for adding articles
         public static void AddArticle()
         {
+            // create new uninitialized article object
+            Article myArticle = new Article();
             bool adding = false;
             try
             {
@@ -157,9 +159,7 @@ namespace ProjectPartA_A1
                                     // tryparse the decimal value of the second string[] element
                                     if (decimal.TryParse(articleArray[1], out decimal decimalResult))
                                     {
-                                        // create new instance of Article
-                                        Article myArticle = new Article();
-
+                                        // initialize article object
                                         myArticle.Name = articleArray[0];
                                         articles[i].Name = myArticle.Name;
 
@@ -209,7 +209,24 @@ namespace ProjectPartA_A1
             adding = false;
         }
 
-        // method that prints elements in the article[] articles array
+        private static bool RemoveArticle(Article[] articles)
+        {
+            Console.WriteLine("Which article in the list would you like to remove? Enter it's name: ");
+            string sInput = Console.ReadLine();
+            for (int i = 0; i < articles.Length; i++)
+            {
+                if (sInput.ToUpper() == articles[i].Name.ToString().ToUpper())
+                {
+                    Console.WriteLine($"{articles[i].ToString()} has been removed!");
+                    articles[i] = new Article();
+                    return true;
+
+                }
+            }
+            return false;
+        }
+
+        // method that prints elements in the article[] articles array sorted by Price
         private static void PrintReceiptPrice(Article[] articles)
         {
             try
@@ -244,6 +261,7 @@ namespace ProjectPartA_A1
                     // counter for the number of objects in the receipt
                     int countReceipt = 0;
 
+                    // sort articles by price
                     for (int i = 0; i < articles.Length - 1; i++)
                     {
                         for (int j = i + 1; j < articles.Length; j++)
@@ -283,6 +301,7 @@ namespace ProjectPartA_A1
                 Console.ReadKey();
             }
         }
+        // method that prints the receipt with articles sorted by Name
         private static void PrintReceiptName(Article[] articles)
         {
             try
@@ -291,9 +310,9 @@ namespace ProjectPartA_A1
                 decimal totalPrice = 0;
 
                 // counter for the number of articles bought
-                for (int i = 0; i < nrArticles; i++)
+                for (int i = 0; i < articles.Length; i++)
                 {
-                    if (articles[i].Name != string.Empty && articles[i].Price != 0)
+                    if (articles[i].Name != null && articles[i].Price != 0)
                     {
                         countArticles++;
                     }
@@ -308,42 +327,37 @@ namespace ProjectPartA_A1
                     Console.WriteLine($"\nNumber of items purchased: {countArticles}");
                     Console.WriteLine($"\n{"#",-2} {"Name",-10} {"Price"}");
 
-                    // add the prices of the items in the array together
-                    foreach (var item in articles)
-                    {
-                        totalPrice += item.Price;
-                    }
+                    
 
                     // counter for the number of objects in the receipt
                     int countReceipt = 0;
 
-
-
+                    Article tmp;
+                    // sort articles by name
                     for (int i = 0; i < articles.Length - 1; i++)
                     {
-
-
-                        for (int j = i + 1; j < articles.Length; j++)
+                        for (int j = i + 1; j < articles.Length - 1 - i; j++)
                         {
-
-                            // compare elements content, articles[] null. why?
-
-                            if (articles[i].Name.CompareTo(articles[j].Name) < 0)
+                            // object reference not set to an instance of an object?
+                            if ((articles[i].Name.ToString()).CompareTo(articles[i + 1].Name.ToString()) < 0)
                             {
-                                Article temp = articles[j];
-                                articles[j] = articles[i];
-                                articles[i] = temp;
+                                tmp = articles[i];
+                                articles[i] = articles[j];
+                                articles[j] = tmp;
                             }
                         }
-                        // check if article name is not empty
 
                         if (articles[i].Name != string.Empty)
                         {
                             countReceipt++;
                             Console.WriteLine($"{countReceipt,-2} {articles[i].Name,-10} {articles[i].Price:C}");
                         }
+                    }
 
-
+                    // add the prices of the items in the array together
+                    foreach (var item in articles)
+                    {
+                        totalPrice += item.Price;
                     }
 
                     Console.WriteLine($"\nTotal purchase: {totalPrice:C}");
@@ -356,6 +370,7 @@ namespace ProjectPartA_A1
                 else
                 {
                     Console.WriteLine("The shopping list is empty!");
+                    Console.ReadKey();
                 }
             }
             catch (Exception error)
