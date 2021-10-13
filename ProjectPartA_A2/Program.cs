@@ -331,26 +331,37 @@ namespace ProjectPartA_A2
 
                     // counter for the number of objects in the receipt
                     int countReceipt = 0;
-
+                    int pos = 0;
+                    int passes = 0;
                     Article tmp;
+
                     // sort articles by name
-                    for (int i = 0; i < articles.Length - 1; i++)
+                    //loop through length-1 because we compare to the number after the current number, which makes it
+                    // unnecessary to go to the last position because there is nothing to compare to after it
+                    for (passes = 0; passes < articles.Length - 1; passes++)
                     {
-                        for (int j = i + 1; j < articles.Length - 1 - i; j++)
+                        // 
+                        for (pos = 0; pos < articles.Length - (1 + passes); pos++)
                         {
-                            // object reference not set to an instance of an object?
-                            if ((articles[i].Name.ToString()).CompareTo(articles[i + 1].Name.ToString()) < 0)
+                            if(articles[pos].Name != null && articles[pos + 1].Name != null)
                             {
-                                tmp = articles[i];
-                                articles[i] = articles[j];
-                                articles[j] = tmp;
+                                // since the elements to compare are strings,
+                                // here i am using compareTo to see if the instance (the first letter, a char),
+                                // precedes the first letter in the string to compare with
+                                if (articles[pos].Name[0].CompareTo(articles[pos + 1].Name[0]) < 0)
+                                {
+                                    // if the instance precedes the first letter of the element on pos + 1, swap the elements
+                                    tmp = articles[pos + 1];
+                                    articles[pos + 1] = articles[pos];
+                                    articles[pos] = tmp;
+                                }
                             }
                         }
-
-                        if (articles[i].Name != string.Empty)
+                        // check so the counter and console writeline are not using any elements with default values
+                        if (articles[pos].Name != default && articles[pos].Price != default)
                         {
                             countReceipt++;
-                            Console.WriteLine($"{countReceipt,-2} {articles[i].Name,-10} {articles[i].Price:C}");
+                            Console.WriteLine($"{countReceipt,-2} {articles[pos].Name,-10} {articles[pos].Price:C}");
                         }
                     }
 
@@ -365,6 +376,7 @@ namespace ProjectPartA_A2
                     // calculate included VAT in price
                     Console.WriteLine($"\nIncludes VAT: {totalPrice * _vat:C}");
                     Console.WriteLine("\nREMEMBER TO ALWAYS KEEP YOUR RECEIPT :)");
+                    Console.ReadKey();
 
                 }
                 else
