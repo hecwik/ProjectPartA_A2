@@ -74,13 +74,13 @@ namespace ProjectPartA_A2
                 Console.Write("\nHow many articles would you like to buy (between 1-10)?: ");
 
                 // tryparse console readline input
-                if (int.TryParse(Console.ReadLine(), out int amountOfArticles))
+                if (int.TryParse(Console.ReadLine(), out int sNrOfArticles))
                 {
                     // check if input is between 0 and 11
-                    if (amountOfArticles > 0 && amountOfArticles <= 10)
+                    if (sNrOfArticles > 0 && sNrOfArticles <= 10)
                     {
                         // set nrArticles to the input amount of articles selected by the user
-                        nrArticles = amountOfArticles;
+                        nrArticles = sNrOfArticles;
 
                         // checks how many articles, if there are more than one, go to else and print "articles" plural instead of article singular
                         if (nrArticles == 1)
@@ -97,14 +97,17 @@ namespace ProjectPartA_A2
                             return true;
                         }
                     }
-                    else if (amountOfArticles > 10)
+                    else if (sNrOfArticles > 10)
                     {
-                        Console.WriteLine($"\n{amountOfArticles} are too many articles. Maximum number of articles is 10.\n");
+                        Console.WriteLine($"\n{sNrOfArticles} are too many articles. Maximum number of articles is {_maxNrArticles}.\n");
+                        Console.WriteLine("\nPress anywhere to continue...\n");
+                        Console.ReadKey();
                         return false;
                     }
-                    else if (amountOfArticles <= 0)
+                    else if (sNrOfArticles <= 0)
                     {
                         Console.WriteLine($"\nYou have to add an article.\n");
+                        Console.ReadKey();
                         return false;
                     }
                     return false;
@@ -174,24 +177,32 @@ namespace ProjectPartA_A2
                                     else
                                     {
                                         Console.WriteLine("\nError! The price has to be entered in the format '2,25'.\n");
+                                        Console.WriteLine("Press anyhwere to continue...");
+                                        Console.ReadKey();
                                         i--;
                                     }
                                 }
                                 else
                                 {
                                     Console.WriteLine($"\nName of article is too long! Maximum {_maxArticleNameLength} characters allowed.");
+                                    Console.WriteLine("Press anyhwere to continue...");
+                                    Console.ReadKey();
                                     i--;
                                 }
                             }
                             else
                             {
                                 Console.WriteLine("Article name or price was not entered, please try again.");
+                                Console.WriteLine("Press anyhwere to continue...");
+                                Console.ReadKey();
                                 i--;
                             }
                         }
                         else
                         {
                             Console.WriteLine("Error! There must be a space between name and price.");
+                            Console.WriteLine("Press anyhwere to continue...");
+                            Console.ReadKey();
                             i--;
                         }
                     }
@@ -206,23 +217,55 @@ namespace ProjectPartA_A2
                 Console.WriteLine(error.Message);
                 Console.ReadKey();
             }
-            adding = false;
         }
 
         private static bool RemoveArticle(Article[] articles)
         {
-            Console.WriteLine("Which article in the list would you like to remove? Enter it's name: ");
-            string sInput = Console.ReadLine();
-            for (int i = 0; i < articles.Length; i++)
-            {
-                if (sInput.ToUpper() == articles[i].Name.ToString().ToUpper())
-                {
-                    Console.WriteLine($"{articles[i].ToString()} has been removed!");
-                    articles[i] = new Article();
-                    return true;
+            Console.WriteLine("Which article in the list would you like to remove? Enter its name: ");
 
+            // program waits for user input
+            string sInput = Console.ReadLine();
+
+            // new int variable to be used temporarily for counting
+            int length = articles.Length;
+
+            // iterate through all elements in articles.Length to find the matching element
+            for (int i = 0; i < nrArticles; i++)
+            {
+                // check if name and price are NOT null
+                if (articles[i].Name != null && articles[i].Price != 0)
+                {
+                    // check if user input and name of article are equal
+                    if (sInput.ToUpper() == articles[i].Name.ToUpper())
+                    {
+                        Console.WriteLine($"{articles[i].Name} has been removed!");
+                        Console.WriteLine("Press anywhere to continue...");
+                        Console.ReadKey();
+
+                        // replace the current index value with an uninitialized Article
+                        articles[i] = new Article();
+                        break;
+                    }
                 }
             }
+            // sort the array after removal
+            for (int i = 0; i < nrArticles; i++)
+            {
+                if (articles[i].Name == null)
+                {
+                    for (int j = i; j < nrArticles - 1; j++)
+                    {
+                        Article tmp = articles[nrArticles - 1];
+                        articles[nrArticles - 1] = articles[j];
+                        articles[j] = tmp;
+                        nrArticles--;
+                        j--;
+
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -237,7 +280,7 @@ namespace ProjectPartA_A2
                 // counter for the number of articles bought
                 foreach (var item in articles)
                 {
-                    if (item.Name != string.Empty && item.Price != 0)
+                    if (item.Name != null && item.Price != 0)
                     {
                         countArticles++;
                     }
@@ -327,41 +370,43 @@ namespace ProjectPartA_A2
                     Console.WriteLine($"\nNumber of items purchased: {countArticles}");
                     Console.WriteLine($"\n{"#",-2} {"Name",-10} {"Price"}");
 
-                    
+
 
                     // counter for the number of objects in the receipt
                     int countReceipt = 0;
-                    int pos = 0;
-                    int passes = 0;
+                    int i = 0; // nr of for-loop iterations
+                    int p = 0; // nr of position in for-loop
                     Article tmp;
 
                     // sort articles by name
                     //loop through length-1 because we compare to the number after the current number, which makes it
                     // unnecessary to go to the last position because there is nothing to compare to after it
-                    for (passes = 0; passes < articles.Length - 1; passes++)
+                    for (i = 0; i < articles.Length - 1; i++)
                     {
-                        // 
-                        for (pos = 0; pos < articles.Length - (1 + passes); pos++)
+                        // add i to not go to the last element, since it has already been shifted 
+                        for (p = 0; p < articles.Length - (1 + i); p++)
                         {
-                            if(articles[pos].Name != null && articles[pos + 1].Name != null)
+                            // check if name of the current and the next element are NOT null
+                            // to avoid NullReferenceException
+                            if (articles[p].Name != null && articles[p + 1].Name != null)
                             {
                                 // since the elements to compare are strings,
-                                // here i am using compareTo to see if the instance (the first letter, a char),
+                                // here i am using the compareTo-method to see if the instance (the first letter, a char),
                                 // precedes the first letter in the string to compare with
-                                if (articles[pos].Name[0].CompareTo(articles[pos + 1].Name[0]) < 0)
+                                if (articles[p].Name[0].CompareTo(articles[p + 1].Name[0]) < 0)
                                 {
                                     // if the instance precedes the first letter of the element on pos + 1, swap the elements
-                                    tmp = articles[pos + 1];
-                                    articles[pos + 1] = articles[pos];
-                                    articles[pos] = tmp;
+                                    tmp = articles[p + 1];
+                                    articles[p + 1] = articles[p];
+                                    articles[p] = tmp;
                                 }
                             }
                         }
-                        // check so the counter and console writeline are not using any elements with default values
-                        if (articles[pos].Name != default && articles[pos].Price != default)
+                        // check so the counter and console writeline are printing any elements with default values
+                        if (articles[p].Name != default && articles[p].Price != default)
                         {
                             countReceipt++;
-                            Console.WriteLine($"{countReceipt,-2} {articles[pos].Name,-10} {articles[pos].Price:C}");
+                            Console.WriteLine($"{countReceipt,-2} {articles[p].Name,-10} {articles[p].Price:C}");
                         }
                     }
 
@@ -375,13 +420,15 @@ namespace ProjectPartA_A2
 
                     // calculate included VAT in price
                     Console.WriteLine($"\nIncludes VAT: {totalPrice * _vat:C}");
-                    Console.WriteLine("\nREMEMBER TO ALWAYS KEEP YOUR RECEIPT :)");
+                    Console.WriteLine("\nREMEMBER TO ALWAYS KEEP YOUR RECEIPT :)\n");
+                    Console.WriteLine("Press anywhere to continue...");
                     Console.ReadKey();
 
                 }
                 else
                 {
                     Console.WriteLine("The shopping list is empty!");
+                    Console.WriteLine("Press anywhere to continue...");
                     Console.ReadKey();
                 }
             }
