@@ -20,7 +20,6 @@ namespace ProjectPartA_A1
         static void Main(string[] args)
         {
             ShoppingMenu();
-            PrintReceipt(articles);
         }
 
         public static void ShoppingMenu()
@@ -28,6 +27,7 @@ namespace ProjectPartA_A1
             bool menuRunning = true;
             while (menuRunning)
             {
+                Console.Clear();
                 Console.WriteLine("\n\t== Welcome to Project Part A! ==");
                 Console.WriteLine("\n1. Add an article");
                 Console.WriteLine("\n2. Remove an article");
@@ -36,7 +36,7 @@ namespace ProjectPartA_A1
                 Console.WriteLine("\n5. Quit");
 
                 string userInput = Console.ReadLine();
-                if(int.TryParse(userInput, out int result))
+                if (int.TryParse(userInput, out int result))
                 {
                     switch (result)
                     {
@@ -47,15 +47,16 @@ namespace ProjectPartA_A1
 
                             break;
                         case 3:
-
+                            PrintReceiptPrice(articles);
                             break;
 
                         case 4:
-
+                            PrintReceiptName(articles);
                             break;
 
                         case 5:
-
+                            Console.WriteLine("Thank you for using the shopping list!");
+                            Environment.Exit(0);
                             break;
                         default:
                             Console.WriteLine("Please choose between options 1-5.");
@@ -63,79 +64,72 @@ namespace ProjectPartA_A1
                     }
                 }
             }
-            
+
         }
 
-        private static void ReadArticles()
+        private static bool ReadArticles()
         {
             try
             {
-                // invoke shopping menu method's writeline rows
-                ShoppingMenu();
+                Console.Write("\nHow many articles would you like to buy (between 1-10)?: ");
 
-                // initiate bool variable for while-loop control
-                bool articlesEntered = false;
-                while (articlesEntered == false)
+                // tryparse console readline input
+                if (int.TryParse(Console.ReadLine(), out int amountOfArticles))
                 {
-                    Console.Write("\nHow many articles would you like to buy (between 1-10)?: ");
-
-                    // tryparse on console.readline input
-                    if (int.TryParse(Console.ReadLine(), out int amountOfArticles))
+                    // check if input is between 0 and 11
+                    if (amountOfArticles > 0 && amountOfArticles <= 10)
                     {
-                        // check if input is between 0 and 11
-                        if (amountOfArticles > 0 && amountOfArticles <= 10)
+                        // set nrArticles to the input amount of articles selected by the user
+                        nrArticles = amountOfArticles;
+
+                        // checks how many articles, if there are more than one, go to else and print "articles" plural instead of article singular
+                        if (nrArticles == 1)
                         {
-                            // set nrArticles to the input amount of articles selected by the user
-                            nrArticles = amountOfArticles;
-
-                            // checks how many articles, if there are more than one, go to else and print "articles" instead of article
-                            if (nrArticles == 1)
-                            {
-                                Console.WriteLine($"\nYou want to purchase {nrArticles} article.\n");
-                            }
-
-                            else
-                            {
-                                Console.WriteLine($"\nYou want to purchase {nrArticles} articles.\n");
-                            }
-
-                            // set boolean variable to true since a valid number of articles has been entered, exit while loop
-                            articlesEntered = true;
+                            Console.WriteLine($"\nYou want to purchase {nrArticles} article.\n");
+                            AddArticle();
+                            return true;
                         }
 
-                        else if (amountOfArticles > 10)
+                        else
                         {
-                            Console.WriteLine($"\n{amountOfArticles} are too many articles. Maximum number of articles is 10.\n");
-                            articlesEntered = false;
-                        }
-                        else if (amountOfArticles <= 0)
-                        {
-                            Console.WriteLine($"\nYou have to add an article.\n");
-                            articlesEntered = false;
+                            Console.WriteLine($"\nYou want to purchase {nrArticles} articles.\n");
+                            AddArticle();
+                            return true;
                         }
                     }
-
-                    // if tryparse fails, display message
-                    else
+                    else if (amountOfArticles > 10)
                     {
-                        Console.WriteLine("\nWrong input - please enter a number between 1-10.");
-                        articlesEntered = false;
+                        Console.WriteLine($"\n{amountOfArticles} are too many articles. Maximum number of articles is 10.\n");
+                        return false;
                     }
+                    else if (amountOfArticles <= 0)
+                    {
+                        Console.WriteLine($"\nYou have to add an article.\n");
+                        return false;
+                    }
+                    return false;
                 }
-                AddArticle();
+
+                // if tryparse fails, display message
+                else
+                {
+                    Console.WriteLine("\nWrong input - please enter a number between 1-10.");
+                    return false;
+                }
             }
             catch (Exception error)
             {
                 Console.WriteLine(error.Message);
+                Console.ReadKey();
             }
+            return false;
         }
         // method for adding articles
-        static void AddArticle()
+        public static void AddArticle()
         {
             bool adding = false;
             try
             {
-
                 while (adding == false)
                 {
                     // uninitialized string array used for splitting string
@@ -179,7 +173,7 @@ namespace ProjectPartA_A1
                                     }
                                     else
                                     {
-                                        Console.WriteLine("\nError! The price has to use a decimal point as in '2,25'.\n");
+                                        Console.WriteLine("\nError! The price has to be entered in the format '2,25'.\n");
                                         i--;
                                     }
                                 }
@@ -203,17 +197,20 @@ namespace ProjectPartA_A1
                     }
                     // set adding to true and exit the while loop
                     adding = true;
+                    Console.WriteLine("\nPress anywhere to go back to the menu...");
+                    Console.ReadLine();
                 }
             }
             catch (Exception error)
             {
                 Console.WriteLine(error.Message);
+                Console.ReadKey();
             }
             adding = false;
         }
 
         // method that prints elements in the article[] articles array
-        private static void PrintReceipt(Article[] articles)
+        private static void PrintReceiptPrice(Article[] articles)
         {
             try
             {
@@ -223,7 +220,80 @@ namespace ProjectPartA_A1
                 // counter for the number of articles bought
                 foreach (var item in articles)
                 {
-                    if (item.Name != null)
+                    if (item.Name != string.Empty && item.Price != 0)
+                    {
+                        countArticles++;
+                    }
+                }
+
+                // checks if shopping list contains any articles
+                if (countArticles > 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("\n\t==YOUR RECEIPT==");
+                    Console.WriteLine($"\nDate of purchase: {DateTime.Now}");
+                    Console.WriteLine($"\nNumber of items purchased: {countArticles}");
+                    Console.WriteLine($"\n{"#",-2} {"Name",-10} {"Price"}");
+
+                    // add the prices of the items in the array together
+                    foreach (var item in articles)
+                    {
+                        totalPrice += item.Price;
+                    }
+
+                    // counter for the number of objects in the receipt
+                    int countReceipt = 0;
+
+                    for (int i = 0; i < articles.Length - 1; i++)
+                    {
+                        for (int j = i + 1; j < articles.Length; j++)
+                        {
+                            if (articles[i].Price < articles[j].Price)
+                            {
+                                Article temp = articles[i];
+                                articles[i] = articles[j];
+                                articles[j] = temp;
+                            }
+                        }
+                        // check if article price is not 0
+                        if (articles[i].Price != 0)
+                        {
+                            countReceipt++;
+                            Console.WriteLine($"{countReceipt,-2} {articles[i].Name,-10} {articles[i].Price:C}");
+                        }
+
+                    }
+
+                    Console.WriteLine($"\nTotal purchase: {totalPrice:C}");
+
+                    // calculate included VAT in price
+                    Console.WriteLine($"\nIncludes VAT: {totalPrice * _vat:C}");
+                    Console.WriteLine("\nREMEMBER TO ALWAYS KEEP YOUR RECEIPT :)");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine("The shopping list is empty!");
+                    Console.ReadLine();
+                }
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.Message);
+                Console.ReadKey();
+            }
+        }
+        private static void PrintReceiptName(Article[] articles)
+        {
+            try
+            {
+                int countArticles = 0;
+                decimal totalPrice = 0;
+
+                // counter for the number of articles bought
+                for (int i = 0; i < nrArticles; i++)
+                {
+                    if (articles[i].Name != string.Empty && articles[i].Price != 0)
                     {
                         countArticles++;
                     }
@@ -241,19 +311,39 @@ namespace ProjectPartA_A1
                     // add the prices of the items in the array together
                     foreach (var item in articles)
                     {
-                        totalPrice = totalPrice + item.Price;
+                        totalPrice += item.Price;
                     }
 
                     // counter for the number of objects in the receipt
                     int countReceipt = 0;
 
-                    for (int i = 0; i < articles.Length; i++)
+
+
+                    for (int i = 0; i < articles.Length - 1; i++)
                     {
-                        if (articles[i].Name != null)
+
+
+                        for (int j = i + 1; j < articles.Length; j++)
+                        {
+
+                            // compare elements content, articles[] null. why?
+
+                            if (articles[i].Name.CompareTo(articles[j].Name) < 0)
+                            {
+                                Article temp = articles[j];
+                                articles[j] = articles[i];
+                                articles[i] = temp;
+                            }
+                        }
+                        // check if article name is not empty
+
+                        if (articles[i].Name != string.Empty)
                         {
                             countReceipt++;
                             Console.WriteLine($"{countReceipt,-2} {articles[i].Name,-10} {articles[i].Price:C}");
                         }
+
+
                     }
 
                     Console.WriteLine($"\nTotal purchase: {totalPrice:C}");
@@ -271,6 +361,7 @@ namespace ProjectPartA_A1
             catch (Exception error)
             {
                 Console.WriteLine(error.Message);
+                Console.ReadKey();
             }
         }
     }
