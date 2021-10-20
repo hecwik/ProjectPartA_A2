@@ -79,20 +79,23 @@ namespace ProjectPartA_A2
                     // check if input is between 0 and 11
                     if (sNrOfArticles > 0 && sNrOfArticles <= 10)
                     {
+                        
                         // set nrArticles to the input amount of articles selected by the user
                         nrArticles = sNrOfArticles;
+
+                        string articleString = $"You want to purchase {nrArticles}";
 
                         // checks how many articles, if there are more than one, go to else and print "articles" plural instead of article singular
                         if (nrArticles == 1)
                         {
-                            Console.WriteLine($"\nYou want to purchase {nrArticles} article.\n");
+                            
+                            Console.WriteLine($"{articleString} article");
                             AddArticle();
                             return true;
                         }
-
                         else
                         {
-                            Console.WriteLine($"\nYou want to purchase {nrArticles} articles.\n");
+                            Console.WriteLine($"{articleString} articles.");
                             AddArticle();
                             return true;
                         }
@@ -226,44 +229,33 @@ namespace ProjectPartA_A2
             // program waits for user input
             string sInput = Console.ReadLine();
 
-            // new int variable to be used temporarily for counting
-            int length = articles.Length;
-
-            // iterate through all elements in articles.Length to find the matching element
-            for (int i = 0; i < nrArticles; i++)
+            if (sInput != string.Empty && sInput.Length <= _maxArticleNameLength)
             {
-                // check if name and price are NOT null
-                if (articles[i].Name != null && articles[i].Price != 0)
+                // iterate through all elements in articles.Length to find the matching element
+                for (int i = 0; i < nrArticles; i++)
                 {
-                    // check if user input and name of article are equal
-                    if (sInput.ToUpper() == articles[i].Name.ToUpper())
+                    // check if name and price are NOT null
+                    if (articles[i].Name != null && articles[i].Price != 0)
                     {
-                        Console.WriteLine($"{articles[i].Name} has been removed!");
-                        Console.WriteLine("Press anywhere to continue...");
-                        Console.ReadKey();
+                        // check if user input and name of article are equal
+                        if (sInput.ToUpper() == articles[i].Name.ToUpper())
+                        {
+                            Console.WriteLine($"{articles[i].Name} has been removed!");
+                            Console.WriteLine("Press anywhere to continue...");
+                            Console.ReadKey();
 
-                        // replace the current index value with an uninitialized Article
-                        articles[i] = new Article();
-                        break;
+                            // replace the current index value with an uninitialized Article
+                            articles[i] = new Article();
+                            break;
+                        }
                     }
                 }
             }
-            // sort the array after removal
-            for (int i = 0; i < nrArticles; i++)
+            else
             {
-                if (articles[i].Name == null)
-                {
-                    for (int j = i; j < nrArticles - 1; j++)
-                    {
-                        Article tmp = articles[nrArticles - 1];
-                        articles[nrArticles - 1] = articles[j];
-                        articles[j] = tmp;
-                        nrArticles--;
-                        j--;
-
-                        return true;
-                    }
-                }
+                Console.WriteLine($"Either the name of the article is too long (above {_maxArticleNameLength} characters) or you have used invalid characters.");
+                Console.WriteLine("Press anywhere to continue...");
+                Console.ReadKey();
             }
 
             return false;
@@ -301,29 +293,8 @@ namespace ProjectPartA_A2
                         totalPrice += item.Price;
                     }
 
-                    // counter for the number of objects in the receipt
-                    int countReceipt = 0;
-
-                    // sort articles by price
-                    for (int i = 0; i < articles.Length - 1; i++)
-                    {
-                        for (int j = i + 1; j < articles.Length; j++)
-                        {
-                            if (articles[i].Price < articles[j].Price)
-                            {
-                                Article temp = articles[i];
-                                articles[i] = articles[j];
-                                articles[j] = temp;
-                            }
-                        }
-                        // check if article price is not 0
-                        if (articles[i].Price != 0)
-                        {
-                            countReceipt++;
-                            Console.WriteLine($"{countReceipt,-2} {articles[i].Name,-10} {articles[i].Price:C}");
-                        }
-
-                    }
+                    // invoke sort price method
+                    SortPrice();
 
                     Console.WriteLine($"\nTotal purchase: {totalPrice:C}");
 
@@ -370,45 +341,8 @@ namespace ProjectPartA_A2
                     Console.WriteLine($"\nNumber of items purchased: {countArticles}");
                     Console.WriteLine($"\n{"#",-2} {"Name",-10} {"Price"}");
 
-
-
-                    // counter for the number of objects in the receipt
-                    int countReceipt = 0;
-                    int i = 0; // nr of for-loop iterations
-                    int p = 0; // nr of position in for-loop
-                    Article tmp;
-
-                    // sort articles by name
-                    //loop through length-1 because we compare to the number after the current number, which makes it
-                    // unnecessary to go to the last position because there is nothing to compare to after it
-                    for (i = 0; i < articles.Length - 1; i++)
-                    {
-                        // add i to not go to the last element, since it has already been shifted 
-                        for (p = 0; p < articles.Length - (1 + i); p++)
-                        {
-                            // check if name of the current and the next element are NOT null
-                            // to avoid NullReferenceException
-                            if (articles[p].Name != null && articles[p + 1].Name != null)
-                            {
-                                // since the elements to compare are strings,
-                                // here i am using the compareTo-method to see if the instance (the first letter, a char),
-                                // precedes the first letter in the string to compare with
-                                if (articles[p].Name[0].CompareTo(articles[p + 1].Name[0]) < 0)
-                                {
-                                    // if the instance precedes the first letter of the element on pos + 1, swap the elements
-                                    tmp = articles[p + 1];
-                                    articles[p + 1] = articles[p];
-                                    articles[p] = tmp;
-                                }
-                            }
-                        }
-                        // check so the counter and console writeline are printing any elements with default values
-                        if (articles[p].Name != default && articles[p].Price != default)
-                        {
-                            countReceipt++;
-                            Console.WriteLine($"{countReceipt,-2} {articles[p].Name,-10} {articles[p].Price:C}");
-                        }
-                    }
+                    // invoke sort method
+                    SortName();
 
                     // add the prices of the items in the array together
                     foreach (var item in articles)
@@ -436,6 +370,91 @@ namespace ProjectPartA_A2
             {
                 Console.WriteLine(error.Message);
                 Console.ReadKey();
+            }
+        }
+
+        public static void SortName()
+        {
+            Article tmp;
+            int column;
+            int row;
+
+            int countReceipt = 0;
+
+            // sort articles
+            //loop through length-1 because we compare to the number after the current number, which makes it
+            // unnecessary to go to the last position because there is nothing to compare to after it
+            
+            for (column = 0; column < articles.Length - 1; column++)
+            {
+                // add i to not go to the last element, since it has already been shifted 
+                for (row = 0; row < articles.Length - (1 + column); row++)
+                {
+                    // check if name of the current and the next element are NOT null
+                    // to avoid NullReferenceException
+                    if (articles[row].Name != null && articles[row + 1].Name != null)
+                    {
+                        // since the elements to compare are strings,
+                        // here i am using the compareTo-method to see if the instance (the first letter, a char),
+                        // precedes the first letter in the string to compare with
+                        if (articles[row].Name[0].CompareTo(articles[row + 1].Name[0]) < 0)
+                        {
+                            // if the instance precedes the first letter of the element on pos + 1, swap the elements
+                            tmp = articles[row + 1];
+                            articles[row + 1] = articles[row];
+                            articles[row] = tmp;
+                        }
+                    }
+                }
+                // check so the counter and console writeline are NOT printing any default elements
+                if (articles[row].Name != default && articles[row].Price != default)
+                {
+                    countReceipt++;
+                    Console.WriteLine($"{countReceipt,-2} {articles[row].Name,-10} {articles[row].Price:C}");
+                }
+            }
+            
+        }
+
+        public static void SortPrice()
+        {
+            Article tmp;
+            int column;
+            int row;
+
+            int countReceipt = 0;
+
+            // sort articles
+            //loop through length-1 because we compare to the number after the current number, which makes it
+            // unnecessary to go to the last position because there is nothing to compare to after it
+
+            for (column = 0; column < articles.Length - 1; column++)
+            {
+                // add i to not go to the last element, since it has already been shifted 
+                for (row = 0; row < articles.Length - (1 + column); row++)
+                {
+                    // check if name of the current and the next element are NOT null
+                    // to avoid NullReferenceException
+                    if (articles[row].Name != null && articles[row + 1].Name != null)
+                    {
+                        // since the elements to compare are strings,
+                        // here i am using the compareTo-method to see if the instance (the first letter, a char),
+                        // precedes the first letter in the string to compare with
+                        if (articles[column].Price < articles[row].Price)
+                        {
+                            // if the instance precedes the first letter of the element on pos + 1, swap the elements
+                            tmp = articles[row + 1];
+                            articles[row + 1] = articles[row];
+                            articles[row] = tmp;
+                        }
+                    }
+                }
+                // check so the counter and console writeline are NOT printing any default elements
+                if (articles[row].Name != default && articles[row].Price != default)
+                {
+                    countReceipt++;
+                    Console.WriteLine($"{countReceipt,-2} {articles[row].Name,-10} {articles[row].Price:C}");
+                }
             }
         }
     }
