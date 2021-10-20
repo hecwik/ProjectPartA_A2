@@ -79,26 +79,24 @@ namespace ProjectPartA_A2
                     // check if input is between 0 and 11
                     if (sNrOfArticles > 0 && sNrOfArticles <= 10)
                     {
-                        
+
                         // set nrArticles to the input amount of articles selected by the user
                         nrArticles = sNrOfArticles;
 
                         string articleString = $"You want to purchase {nrArticles}";
 
                         // checks how many articles, if there are more than one, go to else and print "articles" plural instead of article singular
-                        if (nrArticles == 1)
+                        if (nrArticles > 1)
                         {
-                            
-                            Console.WriteLine($"{articleString} article");
+                            Console.WriteLine($"{articleString} articles");
                             AddArticle();
                             return true;
                         }
-                        else
-                        {
-                            Console.WriteLine($"{articleString} articles.");
-                            AddArticle();
-                            return true;
-                        }
+
+                        Console.WriteLine($"{articleString} article.");
+                        AddArticle();
+                        return true;
+
                     }
                     else if (sNrOfArticles > 10)
                     {
@@ -384,7 +382,7 @@ namespace ProjectPartA_A2
             // sort articles
             //loop through length-1 because we compare to the number after the current number, which makes it
             // unnecessary to go to the last position because there is nothing to compare to after it
-            
+
             for (column = 0; column < articles.Length - 1; column++)
             {
                 // add i to not go to the last element, since it has already been shifted 
@@ -413,7 +411,7 @@ namespace ProjectPartA_A2
                     Console.WriteLine($"{countReceipt,-2} {articles[row].Name,-10} {articles[row].Price:C}");
                 }
             }
-            
+
         }
 
         public static void SortPrice()
@@ -435,12 +433,12 @@ namespace ProjectPartA_A2
                 {
                     // check if name of the current and the next element are NOT null
                     // to avoid NullReferenceException
-                    if (articles[row].Name != null && articles[row + 1].Name != null)
+                    if (articles[row].Price != 0 && articles[row + 1].Price != 0)
                     {
                         // since the elements to compare are strings,
                         // here i am using the compareTo-method to see if the instance (the first letter, a char),
                         // precedes the first letter in the string to compare with
-                        if (articles[column].Price < articles[row].Price)
+                        if (articles[row].Price > articles[row + 1].Price)
                         {
                             // if the instance precedes the first letter of the element on pos + 1, swap the elements
                             tmp = articles[row + 1];
